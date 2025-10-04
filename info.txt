@@ -1,0 +1,39 @@
+## For Django <-- Python app
+1. Install the Python Image
+2. If there is requirements.txt present in project its OK, else create a requirements.txt file and add the necessary packages which requires to run the app.
+3. just update the linux server (if it is)
+
+4. Update the pip (package manager) &&
+5. Then install all the required package present in requirements.txt
+RUN python -m pip install --upgrade pip && pip install -r requirements.txt
+
+6. EXPOSE the port on which the app is running
+EXPOSE 8000
+
+7. Run the command to execute or run the app
+CMD ["python","manage.py","runserver","0.0.0.0:8000"]
+
+
+
+## For aspnet, dotnet, dotnet-core
+1. Install the dotnet Image
+2. just update the linux server (if it is)
+3. then we need to run some commands for dotnet project
+    dotnet build .csproj -c Release
+    dotnet test .csproj -c Release  (not recommed to run test)
+    dotnet publish .csproj -c Release -o <filename>
+RUN dotnet build aspnetapp.csproj -c Release && dotnet publish aspnetapp.csproj -c Release -o out
+
+4. ENV ASPNETCORE_URLS=http://+:5000
+5. EXPOSE the port on which the app is running
+6. Run the command to execute or run the app
+CMD ["dotnet","aspnetapp.dll"]
+
+docker build, publish is done by sdk Image of aspnet.sdk-6.0 (something like that)
+docker run is done by runtime Image of aspnet.runtime-6.0 (something like that)
+
+
+
+## for fastapi,uvicorn <-- Python app
+1. just run command will change 
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,52 @@
+services:
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    restart: always
+    container_name: java
+    secrets:
+      - db-password
+    environment:
+      MYSQL_HOST: db
+    networks:
+      - private
+      - public
+    depends_on:
+      - db
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    container_name: react
+    ports:
+      - 3000:3000
+    networks:
+      - public
+    depends_on:
+      - backend
+  db:
+    image: mariadb:10.6.4-focal
+    container_name: mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 3s
+      retries: 5
+      start_period: 30s
+    secrets:
+      - db-password
+    networks:
+      - private
+    restart: always
+    command: "--default-authentication-plugin=mysql_native_password"
+    environment:
+      - MYSQL_DATABASE=example
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db-password
+
+networks:
+  public:
+  private:
+
+secrets:
+  db-password:
+    file: db/password.txt

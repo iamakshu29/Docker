@@ -1,0 +1,34 @@
+FROM bitnami/dotnet-sdk:5.0.408 AS BUILD_IMAGE
+LABEL Author="Akshat"
+
+WORKDIR /src
+
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+RUN git clone -b master https://github.com/docker/awesome-compose.git
+
+WORKDIR /src/awesome-compose/aspnet-mssql/app/aspnetapp
+RUN dotnet build aspnetapp.csproj -c Release && dotnet publish aspnetapp.csproj -c Release -o out
+
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
+COPY --from=BUILD_IMAGE /src/awesome-compose/aspnet-mssql/app/aspnetapp/out/ /app
+
+WORKDIR /app
+
+ENV ASPNETCORE_URLS=http://+:5000
+EXPOSE 5000
+
+CMD ["dotnet","aspnetapp.dll"]
+
+# use the command for installing git --> RUN apt-get install -y --no-install-recommends git
+    # Installs only the essential dependencies for git to work.
+    # Results in a smaller, cleaner, more secure image.
+    # use the command git clone cmnd for cloning git repo --> RUN git clone -b master url
+
+# rm -rf /var/lib/apt/lists/*
+    # Deletes them → reduces image size by tens of MB.
+    # it’s just the downloaded package metadata.
+    # That cleanup step ensures your image is leaner, more secure, and production-ready.
+
+# docker build -t aspnetapp:v1 .
+# docker run -d -p 5000:5000 --name aspnetapp aspnetapp:v1
+# public_ip or localhost:5000

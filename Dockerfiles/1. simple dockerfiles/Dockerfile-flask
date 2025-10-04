@@ -1,0 +1,18 @@
+FROM python:3.11-slim
+LABEL Author="Akshat"
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+RUN git clone -b master https://github.com/docker/awesome-compose.git
+
+WORKDIR /app/awesome-compose/flask/app
+RUN python -m pip install --upgrade pip && pip install -r requirements.txt
+
+
+ENV FLASK_APP=app.py
+
+EXPOSE 8000
+CMD ["flask", "run", "--host=0.0.0.0", "--port=8000"]
+
+# need docker compose it required redis container also to run, so for multi container to run ....docker compose is recommended.

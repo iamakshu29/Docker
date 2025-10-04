@@ -1,0 +1,27 @@
+1. for alpine images
+use apk not apt-get
+>>
+RUN apk update && apk add --no-cache git
+
+2. for node.js app
+command to install dependencies is 
+>>
+npm ci
+
+It is preferred for reproducible builds (clean install, no updates)
+After this the build stage now has all node_modules ready.
+
+3. to run the node.js app use
+CMD ["npm","start"]
+
+npm start -> looks up the "start" script in your package.json
+
+4. Here nginx is used as Load balancer...all same just 
+upstream loadbalancer {
+  server web1:5000;
+  server web2:5000;
+}
+this is added for Load-Balancing
+
+5. because of this we ran 2 services for web in compose.yml
+as web1 on diff port and web2 on diff port

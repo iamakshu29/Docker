@@ -1,0 +1,24 @@
+FROM --platform=$BUILDPLATFORM golang:1.18-alpine AS builder
+
+WORKDIR /src
+
+RUN apk add --no-cache git
+RUN git clone -b master https://github.com/docker/awesome-compose.git
+
+WORKDIR /src/awesome-compose/nginx-golang/backend
+
+ENV CGO_ENABLED=0
+RUN go mod tidy
+RUN go build -o myapp main.go
+
+FROM alpine:latest
+
+WORKDIR /app
+COPY --from=builder /src/awesome-compose/nginx-golang/backend .
+
+CMD ["./myapp"]
+
+# --platform=$BUILDPLATFORM means
+# Use the base image that matches the platform of the machine that is performing the build.
+
+# NOT WORKING

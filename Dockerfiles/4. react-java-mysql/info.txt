@@ -1,0 +1,6 @@
+For java related app,
+see the pom.xml for dependencies
+see the application.properties in backend for database related things like db-name, db-user, db-password
+
+Error for mysql
+2025-10-02  9:16:40 3 [Warning] Access denied for user 'root'@'172.18.0.3' (using password: YES)

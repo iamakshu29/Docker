@@ -1,0 +1,41 @@
+services:
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - react-express
+    depends_on:
+      - backend
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    restart: always
+    expose:
+      - 3000
+    networks:
+      - react-express
+      - express-mongo
+    depends_on:
+      - db
+  db:
+    image: mongo:4.2.0
+    container_name: mongo
+    restart: always
+    expose:
+      - 27017
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - express-mongo
+
+volumes:
+  mongo-data:
+
+networks:
+  react-express:
+  express-mongo:

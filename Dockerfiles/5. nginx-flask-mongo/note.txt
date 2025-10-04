@@ -1,0 +1,9 @@
+In server.py the mongo container name is hardcode ie the container name has to be mongo only
+because of this code 
+>> client = MongoClient("mongo:27017")
+
+so what I did is edit the compose.yml and set the container_name: mongo
+
+because all 3 images are working fine individually and still its not running the app...
+
+but mongo and flask not able to connect together due to difference container_name.

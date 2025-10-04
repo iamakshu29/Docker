@@ -1,0 +1,58 @@
+### Not working due to some user issue in mysql, but both proxy and flask containers are working fine.
+chatgpt says:
+the root user works for localhost only so when it see the different server it give 500 internal server error
+
+Resolve:- to resolve change the MYSQL_USER name to any other also change the name in hello.py here
+>>  def __init__(self, database='example', host="db", user="here", password_file=None):
+
+
+1. As you can see there is difference between these app.run()
+
+app = Flask(__name__)
+
+if __name__ == '__main__':
+    app.run()
+This will Uses Flask’s default settings:
+Host = 127.0.0.1 (localhost)
+Port = 5000
+Debug = False
+To run this in Docker, you must set environment variables because inside a container, 127.0.0.1 will bind only to the container itself, not accessible externally.
+
+VS
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=os.environ.get("FLASK_SERVER_PORT", 9090), debug=True)
+
+So if there is nothing in app.run(), then we need to define the environments in Dockerfile and do some changes
+
+FOR first one after  pip3 install -r requirements.txt
+
+ENV FLASK_APP hello.py
+ENV FLASK_ENV development
+ENV FLASK_RUN_PORT 8000
+ENV FLASK_RUN_HOST 0.0.0.0
+
+CMD ["flask", "run"] <-- we have to use this instead python app.py as Running it will ignore environment variables we set...and you have to manually pass in app.run() like below to run with python app.py
+
+For Second one  after pip3 install -r requirements.txt
+
+CMD ["python3", "server.py"]
+
+
+As you can see CMD is also changed when setting env variables....
+
+So Remember that
+
+Also sometimes there are some dependency whose version not match sometimes, so we need to install them
+individually with that version, or we can add that in requirements.txt also
+like we did in Dockerfile
+in line 11 
+method 1 (OKAYISH Approach)
+pip install Werkzeug==2.0.3
+
+method 2 (Recommended)
+add in requirements.txt
+
+Flask==2.0.1
+mysql-connector==2.2.9
+Werkzeug==2.0.3

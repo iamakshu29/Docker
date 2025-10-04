@@ -1,0 +1,6 @@
+Using LTS image
+as slim is unable to download git...If not using git then use slim images (result in light images)
+
+use container_name = mongo
+as its hardcoded in config.json <- config folder backend
+

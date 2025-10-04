@@ -1,0 +1,36 @@
+FROM python:3.11-slim
+LABEL Author="Akshat"
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+RUN git clone -b master https://github.com/docker/awesome-compose.git
+
+# creating a requirements.txt, and add the package we need then just use the pip install -r requirements.txt to install the package present in requirements.txt file
+RUN echo "Django==3.2.13" > requirements.txt && echo "environs==9.5.0" >> requirements.txt && echo "marshmallow==3.19.0" >> requirements.txt
+RUN python -m pip install --upgrade pip && pip install -r requirements.txt
+
+WORKDIR /app/awesome-compose/django/app
+
+EXPOSE 8000
+CMD ["python","manage.py","runserver","0.0.0.0:8000"]
+
+# To Build Image from DockerFile
+# docker build -t django-project .
+
+# errors I am getting
+# the git files containe downgrade versions of environs, also marshmallow version is absent
+# so I append it in requirements.txt
+
+# the another error is while running the container
+# I am getting invalid HTTP_HOST error
+# as my public-ip for AWS is not present in ALLOWED_HOST in settings.py
+
+# How to resolve it?
+# 2 ways
+# either I have to create a settings.py with my public_ip allowed and replace it with all settings.py while creating Dockerfile
+# or
+# If the ALLOWED_HOST is added as env then I can just change the variable value while running the container using -e flag
+
+# To Run Container from Image
+# >> docker run -d -p 8000:8000 -e ALLOWED_HOSTS="44.220.134.244,localhost,127.0.0.1" django-project

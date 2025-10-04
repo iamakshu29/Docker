@@ -1,0 +1,54 @@
+1️⃣ Backend servers (Flask, ASP.NET, Node.js)
+
+They run an HTTP server and serve responses (HTML, JSON, etc.) directly.
+
+Nginx can proxy to them without any special setup:
+
+server {
+    listen 8000;
+    server_name localhost;
+    location / {
+        proxy_pass http://flask-app:9090;
+    }
+}
+
+
+Works out-of-the-box because the backend server handles the requests and responses.
+
+2️⃣ Frontend (React, Angular, Vue, etc.)
+
+React dev server (npm start) does not serve static files from disk; it serves from memory with live-reloading and HMR.
+
+Nginx cannot reliably proxy a dev server like a normal backend because:
+
+Webpack dev server uses WebSockets for hot reload.
+
+Some requests are handled in memory, not as normal HTTP responses.
+
+Therefore, in production, you must:
+
+Run npm run build → generates a build/ folder with static files.
+
+Configure Nginx to serve index.html and other static assets:
+
+server {
+    listen 80;
+    server_name localhost;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri /index.html;
+    }
+}
+
+
+Now Nginx directly serves your frontend app like a normal website.
+
+✅ TL;DR:
+
+Type	                    Can Nginx proxy like normal?	    Notes
+Backend	                    ✅ Yes	                           Direct HTTP responses
+Frontend (dev server)	    ❌ No	                           In-memory, hot reload, WebSockets
+Frontend (production build)	✅ Yes	                           Serve static index.html + assets

@@ -1,0 +1,17 @@
+FROM python:3.11-slim AS BUILD_IMAGE
+LABEL Author="Akshat"
+
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+RUN git clone -b master https://github.com/docker/awesome-compose.git
+
+WORKDIR /app/awesome-compose/fastapi
+RUN python -m pip install --upgrade pip && pip install -r requirements.txt
+
+WORKDIR /app/awesome-compose/fastapi/app
+
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# this is a uvicorn , fastapi program
+# so the CMD should not be ["python","main.py"] its different as mentioned above

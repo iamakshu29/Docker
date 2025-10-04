@@ -1,0 +1,55 @@
+services:
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - react-express
+    depends_on:
+      - backend
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: always
+    expose:
+      - 3000
+    environment:
+      - DATABASE_DB=example
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=/run/secrets/db-password
+      - DATABASE_HOST=db
+    secrets:
+      - db-password
+    networks:
+      - react-express
+      - express-mysql
+    depends_on:
+      - db
+  db:
+    image: mariadb:10.6.4-focal
+    restart: always
+    environment:
+      - MYSQL_DATABASE=example
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db-password
+    secrets:
+      - db-password
+    volumes:
+      - mysql-data:/data/db
+    networks:
+      - express-mysql
+
+volumes:
+  mysql-data:
+
+networks:
+  react-express:
+  express-mysql:
+
+secrets:
+  db-password:
+    file: db/password.txt
